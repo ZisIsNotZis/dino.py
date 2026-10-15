@@ -3,3 +3,12 @@ __pycache__/
 .venv/
 node_modules/
 .ipynb_checkpoints/
+.pi/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.gguf
+*dino2.*f
+*dino3.*f
+*.vis
