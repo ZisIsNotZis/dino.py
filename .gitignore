@@ -12,3 +12,11 @@ node_modules/
 *dino2.*f
 *dino3.*f
 *.vis
+
+# Packaging / tool caches
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
