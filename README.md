@@ -12,6 +12,14 @@
 
 This is an experimental reference implementation, not a packaged application. The scripts are small enough to read in one sitting, and the inference path depends only on the `ggml` Python bindings, NumPy, Pillow and scikit-learn.
 
+**Dependencies**
+
+| Part of the repo | Needs |
+| --- | --- |
+| Inference (`gg.py`, `dino2.py`, `dino3.py`, `cutvid.py`) | `ggml` bindings providing the `ggml` and `ggml.utils` modules, `numpy`, `pillow`, `scikit-learn` |
+| `cut.py` | a `dinov2` executable on `PATH` |
+| Conversion helpers (`convert_*.py`, `llama_quantize.py`) | `torch`, `transformers`, `gguf` |
+
 ## Quick start
 
 ### 1. Install
@@ -26,7 +34,7 @@ python3.12 -m venv .venv
 pip install numpy pillow scikit-learn
 ```
 
-Install the `ggml` bindings for your platform separately; they are not vendored here. No model weights or lockfile are included.
+Install the `ggml` bindings for your platform separately; they are not vendored here and are not on PyPI under a name this repository can assume. `gg.py` only needs the compiled bindings' Python modules `ggml` and `ggml.utils` to be importable. No model weights or lockfile are included.
 
 ### 2. Point at a model
 
@@ -45,7 +53,7 @@ python dino2.py photo.jpg   # DINOv2
 python dino3.py photo.jpg   # DINOv3
 ```
 
-Each input gets raw float32 feature files next to it, with the array shape encoded in the suffix. Set `VIS=1` to also write a PCA visualization as JPEG:
+Each input gets raw float32 feature files next to it, named `<image><dino2|dino3>.<dims>f`, where `<dims>` is the comma-joined array shape. The shape suffix is how `cut.py` rebuilds the feature file name it loads back; `cutvid.py` instead calls `run()` directly. Both scripts accept several images in one call. Set `VIS=1` to also write a PCA visualization as JPEG:
 
 ```bash
 VIS=1 python dino2.py photo.jpg
@@ -91,6 +99,7 @@ dino.py/
 ├── convert_dinov3_vit_hf_to_gguf.py  # HF DINOv2 ViT -> GGUF
 ├── convert_hf_to_gguf.py          # generic HF model -> GGUF
 ├── llama_quantize.py              # requantize an existing GGUF to f16
+├── CONTRIBUTING.md                # scope, verification, PR rules
 └── assets/logo.svg
 ```
 
@@ -114,7 +123,7 @@ The conversion helpers are separate from inference and require PyTorch, Transfor
 
 ## How to contribute
 
-Small, focused patches are welcome. Open an issue with:
+Small, focused patches are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md) for scope, verification expectations and PR rules. Open an issue with:
 
 - the checkpoint or GGUF family you are using,
 - the backend (CPU or CUDA) and Python version,
@@ -146,4 +155,4 @@ The long-term idea is a small, model-agnostic vision runner: give it a GGUF file
 
 ## License
 
-The repository's own code is [AGPL-3.0-only](LICENSE). The upstream Hugging Face converters `convert_dinov3_convnext_to_hf.py` and `convert_dinov3_vit_to_hf.py` retain their Apache-2.0 copyright and license headers; the repository license does not replace those notices.
+The repository's own code is [AGPL-3.0-only](LICENSE), copyright © ZisIsNotZis. The upstream Hugging Face converters `convert_dinov3_convnext_to_hf.py` and `convert_dinov3_vit_to_hf.py` retain their Apache-2.0 copyright and license headers; the repository license does not replace those notices.

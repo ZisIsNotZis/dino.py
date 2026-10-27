@@ -12,6 +12,14 @@
 
 这是一个实验性的参考实现，不是打包好的应用。所有脚本都不长，推理链路只依赖 `ggml` 的 Python 绑定、NumPy、Pillow 和 scikit-learn。
 
+**依赖**
+
+| 仓库部分 | 需要 |
+| --- | --- |
+| 推理（`gg.py`、`dino2.py`、`dino3.py`、`cutvid.py`） | 提供 `ggml` 和 `ggml.utils` 模块的 `ggml` 绑定、`numpy`、`pillow`、`scikit-learn` |
+| `cut.py` | `PATH` 上的 `dinov2` 可执行文件 |
+| 转换工具（`convert_*.py`、`llama_quantize.py`） | `torch`、`transformers`、`gguf` |
+
 ## 快速开始
 
 ### 1. 安装
@@ -26,7 +34,7 @@ python3.12 -m venv .venv
 pip install numpy pillow scikit-learn
 ```
 
-`ggml` 绑定请按你的平台单独安装，本仓库不附带。仓库也不包含模型权重和依赖锁文件。
+`ggml` 绑定请按你的平台单独安装，本仓库不附带，也没有一个能假定的 PyPI 包名；`gg.py` 只要求编译好的绑定里 `ggml` 和 `ggml.utils` 两个模块可导入。仓库也不包含模型权重和依赖锁文件。
 
 ### 2. 指向模型
 
@@ -45,7 +53,7 @@ python dino2.py photo.jpg   # DINOv2
 python dino3.py photo.jpg   # DINOv3
 ```
 
-每张输入图旁边会生成原始 float32 特征文件，文件名后缀里带着数组形状。设置 `VIS=1` 还会额外写一张 PCA 可视化 JPEG：
+每张输入图旁边会生成原始 float32 特征文件，命名形如 `<图片><dino2|dino3>.<各维大小>f`，后缀就是逗号连接的数组形状；`cut.py` 正是靠这个后缀拼出要读回的 float32 特征文件名，`cutvid.py` 则直接调用 `run()`。两个脚本都支持一次传入多张图。设置 `VIS=1` 还会额外写一张 PCA 可视化 JPEG：
 
 ```bash
 VIS=1 python dino2.py photo.jpg
@@ -91,6 +99,7 @@ dino.py/
 ├── convert_dinov3_vit_hf_to_gguf.py  # HF DINOv2 ViT -> GGUF
 ├── convert_hf_to_gguf.py          # 通用 HF 模型 -> GGUF
 ├── llama_quantize.py              # 把现有 GGUF 重新量化为 f16
+├── CONTRIBUTING.md                # 贡献范围、验证要求与 PR 规则
 └── assets/logo.svg
 ```
 
@@ -114,7 +123,7 @@ GGUF 权重 -> gg.py 加载 -> 显式 ggml 计算图 -> ggml 后端 -> NumPy 数
 
 ## 如何贡献
 
-欢迎小而集中的补丁。提 issue 时请附上：
+欢迎小而集中的补丁；范围、验证要求和 PR 规则见 [CONTRIBUTING.md](CONTRIBUTING.md)。提 issue 时请附上：
 
 - 使用的 checkpoint 或 GGUF 类型；
 - 后端（CPU/CUDA）与 Python 版本；
@@ -146,4 +155,4 @@ GGUF 权重 -> gg.py 加载 -> 显式 ggml 计算图 -> ggml 后端 -> NumPy 数
 
 ## 许可证
 
-仓库自身代码使用 [AGPL-3.0-only](LICENSE)。两个上游 Hugging Face 转换脚本 `convert_dinov3_convnext_to_hf.py` 和 `convert_dinov3_vit_to_hf.py` 保留 Apache-2.0 版权与许可头；仓库许可证不替代这些声明。
+仓库自身代码使用 [AGPL-3.0-only](LICENSE)，版权归 ZisIsNotZis 所有。两个上游 Hugging Face 转换脚本 `convert_dinov3_convnext_to_hf.py` 和 `convert_dinov3_vit_to_hf.py` 保留 Apache-2.0 版权与许可头；仓库许可证不替代这些声明。
